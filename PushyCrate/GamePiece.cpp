@@ -41,10 +41,10 @@ GamePiece::~GamePiece()
 	SDL_FreeSurface(image);
 }
 
-void GamePiece::draw(SDL_Surface *windowSurface, int x, int y)
+void GamePiece::draw(SDL_Surface *windowSurface, int x, int y, int size)
 {
-	SDL_Rect r {x*64, y*64, 64, 64};
-	SDL_BlitSurface(image, NULL, windowSurface, &r);
+	SDL_Rect r {x*size, y*size, size, size};
+	SDL_BlitScaled(image, NULL, windowSurface, &r);
 }
 
 void GamePiece::pressSwitch()
@@ -74,7 +74,7 @@ void GamePiece::unpressSwitch()
 		image = SDL_LoadBMP(imgCrate);
 		type = type_crate;
 		break;
-	case type_player:
+	case type_player_switch:
 		SDL_FreeSurface(image);
 		image = SDL_LoadBMP(imgPlayer);
 		type = type_player;

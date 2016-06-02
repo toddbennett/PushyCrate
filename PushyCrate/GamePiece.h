@@ -8,7 +8,7 @@ class GamePiece
 public:
 	GamePiece(PieceType t);
 	~GamePiece();
-	void draw(SDL_Surface *windowSurface, int x, int y);
+	void draw(SDL_Surface *windowSurface, int x, int y, int size);
 	void pressSwitch();
 	void unpressSwitch();
 	PieceType getType();

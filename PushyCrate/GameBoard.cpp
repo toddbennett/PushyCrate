@@ -1,37 +1,65 @@
 #include <stdio.h>
 #include "GameBoard.h"
 
-GameBoard::GameBoard()
+GameBoard::GameBoard(int w, int h, int s, char *data)
 {
-	playerx = 1;
-	playery = 1;
+	playerx = -1;
+	playery = -1;
+	width = w;
+	height = h;
+	size = s;
 
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
-			board[i][j] = NULL;
-		}
+	board = new GamePiece**[width];
+	for (int i = 0; i < width; i++) {
+		board[i] = new GamePiece*[height];
 	}
 
-	board[0][0] = new GamePiece(type_wall);
-	board[0][1] = new GamePiece(type_wall);
-	board[0][2] = new GamePiece(type_wall);
-	board[0][3] = new GamePiece(type_wall);
-	board[0][4] = new GamePiece(type_wall);
-	board[0][5] = new GamePiece(type_wall);
-
-	board[1][0] = new GamePiece(type_wall);
-	board[1][1] = new GamePiece(type_player);
-	board[1][2] = NULL;
-	board[1][3] = new GamePiece(type_crate);
-	board[1][4] = new GamePiece(type_switch);
-	board[1][5] = new GamePiece(type_wall);
-
-	board[2][0] = new GamePiece(type_wall);
-	board[2][1] = new GamePiece(type_wall);
-	board[2][2] = new GamePiece(type_wall);
-	board[2][3] = new GamePiece(type_wall);
-	board[2][4] = new GamePiece(type_wall);
-	board[2][5] = new GamePiece(type_wall);
+	for (int j = 0; j < height; j++) {
+		for (int i = 0; i < width; i++) {
+			switch (data[j*width + i]) {
+			case '0':
+				board[i][j] = NULL;
+				break;
+			case 'W':
+				board[i][j] = new GamePiece(type_wall);
+				break;
+			case 'S':
+				board[i][j] = new GamePiece(type_switch);
+				break;
+			case 'P':
+				board[i][j] = new GamePiece(type_player);
+				if (playerx != -1 || playery != -1) {
+					printf("Only one player permitted!!!\n");
+					return;
+				}
+				playerx = i;
+				playery = j;
+				break;
+			case 'C':
+				board[i][j] = new GamePiece(type_crate);
+				break;
+			case 'p':
+				board[i][j] = new GamePiece(type_player_switch);
+				if (playerx != -1 || playery != -1) {
+					printf("Only one player permitted!!!\n");
+					return;
+				}
+				playerx = i;
+				playery = j;
+				break;
+			case 'c':
+				board[i][j] = new GamePiece(type_crate_switch);
+				break;
+			default:
+				printf("Unknown character! %c\n", data[j*width + i]);
+				return;
+			}
+		}
+	}
+	if (playerx == -1 || playery == -1) {
+		printf("No player found!\n");
+		return;
+	}
 }
 
 
@@ -80,6 +108,10 @@ int GameBoard::move(Dir d, int x, int y) {
 	case dir_down:
 		ny++;
 		break;
+	}
+
+	if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+		return 0;
 	}
 
 	GamePiece *p = board[x][y];
@@ -175,10 +207,10 @@ int GameBoard::move(Dir d, int x, int y) {
 
 void GameBoard::draw(SDL_Surface * windowSurface)
 {
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
 			if (board[i][j] != NULL) {
-				board[i][j]->draw(windowSurface, i, j);
+				board[i][j]->draw(windowSurface, i, j, size);
 			}
 		}
 	}

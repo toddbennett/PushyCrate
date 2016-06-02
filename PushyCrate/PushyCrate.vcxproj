@@ -157,6 +157,14 @@
     <ClCompile Include="GamePiece.cpp" />
     <ClCompile Include="PushyCrate.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Debug\res\brick.bmp" />
+    <Image Include="..\Debug\res\crate.bmp" />
+    <Image Include="..\Debug\res\crateswitch.bmp" />
+    <Image Include="..\Debug\res\player.bmp" />
+    <Image Include="..\Debug\res\playerswitch.bmp" />
+    <Image Include="..\Debug\res\switch.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

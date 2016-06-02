@@ -39,4 +39,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Debug\res\brick.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\res\crate.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\res\crateswitch.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\res\player.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\res\playerswitch.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Debug\res\switch.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
