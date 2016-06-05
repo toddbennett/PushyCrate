@@ -27,6 +27,9 @@
     <ClInclude Include="PushyCrate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PrevMove.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PushyCrate.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrevMove.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

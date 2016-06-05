@@ -15,10 +15,52 @@ PushyCrate::PushyCrate(char * filename)
 		printf("Could not open file %s\n", filename);
 		return;
 	}
-	if (fscanf(f, "%d,%d\n\n", &width, &height) != 2) {
-		printf("Could not read file %s\n", filename);
-		return;
+
+	char *boardData = new char[1024];
+	int i = 0;
+	while (1) {
+		int c = fgetc(f);
+		if (c == ' ') {
+			continue;
+		}
+		if (c == '\n') {
+			width = i;
+			break;
+		}
+		if (c == EOF) {
+			printf("Error reading file!\n");
+			return;
+		}
+		boardData[i] = c;
+		i++;
 	}
+	int j = 1;
+	while (1) {
+		int c;
+		for (i = 0; i < width; i++) {
+			c = fgetc(f);
+			if (c == ' ') {
+				continue;
+			}
+			if (c == '\n' || c == EOF) {
+				printf("Error reading file! Wrong width!\n");
+				return;
+			}
+			boardData[j*width + i] = c;
+		}
+		j++;
+		do {
+			c = fgetc(f);
+		} while (c == '\n' || c == ' ');
+		if (c == EOF) {
+			height = j;
+			break;
+		}
+		else {
+			ungetc(c, f);
+		}
+	}
+
 	printf("Width is %d\n", width);
 	printf("Height is %d\n", height);
 
@@ -26,14 +68,6 @@ PushyCrate::PushyCrate(char * filename)
 	int h = maxheight / height;
 	size = (w < h) ? w : h;
 	printf("Size is: %d\n", size);
-
-	char *boardData = new char[width*height];
-	for (int j = 0; j < height; j++) {
-		for (int i = 0; i < width; i++) {
-			boardData[i + j*width] = fgetc(f);
-		}
-		fgetc(f);
-	}
 
 	window = SDL_CreateWindow("Pushy Crate!", SDL_WINDOWPOS_CENTERED, 30, width*size, height*size, NULL);
 	surface = SDL_GetWindowSurface(window);
@@ -67,6 +101,12 @@ int PushyCrate::start()
 					break;
 				case SDL_SCANCODE_DOWN:
 					board->movePlayer(dir_down);
+					break;
+				case SDL_SCANCODE_R:
+					board->reset();
+					break;
+				case SDL_SCANCODE_U:
+					board->undo();
 					break;
 				}
 			}

@@ -150,11 +150,13 @@
   <ItemGroup>
     <ClInclude Include="GameBoard.h" />
     <ClInclude Include="GamePiece.h" />
+    <ClInclude Include="PrevMove.h" />
     <ClInclude Include="PushyCrate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameBoard.cpp" />
     <ClCompile Include="GamePiece.cpp" />
+    <ClCompile Include="PrevMove.cpp" />
     <ClCompile Include="PushyCrate.cpp" />
   </ItemGroup>
   <ItemGroup>

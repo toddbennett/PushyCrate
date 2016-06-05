@@ -1,5 +1,6 @@
 #pragma once
 #include "GamePiece.h"
+#include "PrevMove.h"
 
 enum Dir { dir_right, dir_up, dir_left, dir_down };
 
@@ -10,10 +11,14 @@ public:
 	~GameBoard();
 	void draw(SDL_Surface *windowSurface);
 	int movePlayer(Dir d);
-	int move(Dir d, int x, int y);
+	PrevMove *move(Dir d, int x, int y);
+	void reset();
+	void undo();
 private:
 	GamePiece ***board;
 	int playerx, playery;
 	int width, height, size;
+	char *resetData;
+	PrevMove *prev;
 };
 
