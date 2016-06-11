@@ -3,8 +3,8 @@
 #include "GameBoard.h"
 #include "PushyCrate.h"
 
-
-// TODO: refactor GameBoard to not need these to be exactly 10
+// Change these if your screen isn't an old flat screen TV hooked up to your computer, with windows 10 sizing everything up by x1.5.
+// I hope that no one else in the world has such a set-up.
 const int maxwidth = 1280;
 const int maxheight = 650;
 
@@ -72,10 +72,14 @@ PushyCrate::PushyCrate(char * filename)
 	window = SDL_CreateWindow("Pushy Crate!", SDL_WINDOWPOS_CENTERED, 30, width*size, height*size, NULL);
 	surface = SDL_GetWindowSurface(window);
 	board = new GameBoard(width, height, size, boardData);
+
+	fclose(f);
 }
 
 PushyCrate::~PushyCrate()
 {
+	delete board;
+	SDL_DestroyWindow(window);
 }
 
 int PushyCrate::start()
@@ -123,10 +127,11 @@ int main(int argc, char **argv) {
 		printf("Unable to initialize SDL:  %s\n", SDL_GetError());
 		return 1;
 	}
-
-	PushyCrate *pc = new PushyCrate("C:\\Users\\xtodd\\Desktop\\soko1.txt");
+	PushyCrate *pc = new PushyCrate("C:\\Users\\xtodd\\Documents\\Visual Studio 2015\\Projects\\PushyCrate\\Debug\\res\\soko1.txt");
 
 	pc->start();
+
+	delete pc;
 	
 	SDL_Quit();
 	return 0;

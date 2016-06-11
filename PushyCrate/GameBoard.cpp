@@ -140,6 +140,9 @@ void GameBoard::reset() {
 	playery = -1;
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
+			if (board[i][j] != NULL) {
+				delete board[i][j];
+			}
 			switch (resetData[j*width + i]) {
 			case '0':
 				board[i][j] = NULL;
@@ -189,6 +192,15 @@ void GameBoard::reset() {
 
 GameBoard::~GameBoard()
 {
+	delete[] resetData;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			if (board[i][j] != NULL) {
+				delete board[i][j];
+			}
+		}
+	}
+	delete[] board;
 }
 
 int GameBoard::movePlayer(Dir d) {
