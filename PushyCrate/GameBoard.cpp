@@ -53,7 +53,6 @@ GameBoard::GameBoard(int w, int h, int s, char *data)
 				playerx = i;
 				playery = j;
 				numSwitches++;
-				numSwitchesPressed++;
 				break;
 			case 'c':
 				board[i][j] = new GamePiece(type_crate_switch);
@@ -99,11 +98,9 @@ void GameBoard::undo() {
 	if (prev->player_on) {
 		player->unpressSwitch();
 		board[playerx][playery] = new GamePiece(type_switch);
-		numSwitchesPressed--;
 	}
 	if (prev->player_off) {
 		player->pressSwitch();
-		numSwitchesPressed++;
 	}
 
 	if (prev->crate) {
@@ -202,12 +199,10 @@ void GameBoard::redo() {
 
 	if (rprev->player_off) {
 		player->unpressSwitch();
-		numSwitchesPressed--;
 	}
 	if (rprev->player_on) {
 		delete board[nx][ny];
 		player->pressSwitch();
-		numSwitchesPressed++;
 	}
 	
 	board[nx][ny] = board[playerx][playery];
@@ -285,7 +280,6 @@ void GameBoard::reset() {
 				playerx = i;
 				playery = j;
 				numSwitches++;
-				numSwitchesPressed++;
 				break;
 			case 'c':
 				board[i][j] = new GamePiece(type_crate_switch);
@@ -387,7 +381,9 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 	if (op == NULL) {
 		if (ptype == type_crate_switch || ptype == type_player_switch) {
 			p->unpressSwitch();
-			numSwitchesPressed--;
+			if (ptype == type_crate_switch) {
+				numSwitchesPressed--;
+			}
 			board[nx][ny] = p;
 			board[x][y] = new GamePiece(type_switch);
 			prev->player_off = true;
@@ -419,7 +415,9 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 		}
 		else {
 			p->pressSwitch();
-			numSwitchesPressed++;
+			if (ptype == type_crate) {
+				numSwitchesPressed++;
+			}
 			board[nx][ny] = p;
 			board[x][y] = NULL;
 			delete op;
@@ -444,7 +442,6 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 			PrevMove *t = move(d, nx, ny);
 			if (t) {
 				p->unpressSwitch();
-				numSwitchesPressed--;
 				board[nx][ny] = p;
 				board[x][y] = new GamePiece(type_switch);
 				if (t->player_on) {
@@ -462,7 +459,6 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 			PrevMove *t = move(d, nx, ny);
 			if (t) {
 				p->pressSwitch();
-				numSwitchesPressed++;
 				op = board[nx][ny];
 				delete op;
 				board[nx][ny] = p;
