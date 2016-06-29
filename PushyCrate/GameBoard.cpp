@@ -10,6 +10,9 @@ GameBoard::GameBoard(int w, int h, int s, char *data)
 	size = s;
 	resetData = data;
 	prev = NULL;
+	rprev = NULL;
+	numSwitches = 0;
+	numSwitchesPressed = 0;
 
 	board = new GamePiece**[width];
 	for (int i = 0; i < width; i++) {
@@ -27,6 +30,7 @@ GameBoard::GameBoard(int w, int h, int s, char *data)
 				break;
 			case 'S':
 				board[i][j] = new GamePiece(type_switch);
+				numSwitches++;
 				break;
 			case 'P':
 				board[i][j] = new GamePiece(type_player);
@@ -48,9 +52,13 @@ GameBoard::GameBoard(int w, int h, int s, char *data)
 				}
 				playerx = i;
 				playery = j;
+				numSwitches++;
+				numSwitchesPressed++;
 				break;
 			case 'c':
 				board[i][j] = new GamePiece(type_crate_switch);
+				numSwitches++;
+				numSwitchesPressed++;
 				break;
 			default:
 				printf("Unknown character! %c\n", data[j*width + i]);
@@ -91,9 +99,11 @@ void GameBoard::undo() {
 	if (prev->player_on) {
 		player->unpressSwitch();
 		board[playerx][playery] = new GamePiece(type_switch);
+		numSwitchesPressed--;
 	}
 	if (prev->player_off) {
 		player->pressSwitch();
+		numSwitchesPressed++;
 	}
 
 	if (prev->crate) {
@@ -121,23 +131,123 @@ void GameBoard::undo() {
 		if (prev->crate_on) {
 			crate->unpressSwitch();
 			board[cratex][cratey] = new GamePiece(type_switch);
+			numSwitchesPressed--;
 		}
 		if (prev->crate_off) {
 			crate->pressSwitch();
+			numSwitchesPressed++;
 		}
 	}
 
 	playerx = nx;
 	playery = ny;
 
-	PrevMove *temp = prev;
+	PrevMove *temp = rprev;
+	rprev = prev;
 	prev = prev->prev;
-	delete temp;
+	rprev->prev = temp;
+}
+
+void GameBoard::redo() {
+	if (rprev == NULL) {
+		return;
+	}
+
+	GamePiece *player = board[playerx][playery];
+
+	int nx = playerx;
+	int ny = playery;
+	int nnx = playerx;
+	int nny = playery;
+
+	switch (rprev->direction) {
+	case 'r':
+		nx++;
+		nnx += 2;
+		break;
+	case 'u':
+		ny--;
+		nny -= 2;
+		break;
+	case 'l':
+		nx--;
+		nnx -= 2;
+		break;
+	case 'd':
+		ny++;
+		nny += 2;
+		break;
+	}
+
+	if (rprev->crate) {
+		GamePiece *crate = board[nx][ny];
+
+		if (rprev->crate_off) {
+			crate->unpressSwitch();
+			numSwitchesPressed--;
+		}
+		if (rprev->crate_on) {
+			delete board[nnx][nny];
+			crate->pressSwitch();
+			numSwitchesPressed++;
+		}
+
+		board[nnx][nny] = board[nx][ny];
+		board[nx][ny] = NULL;
+
+		if (rprev->crate_off) {
+			board[nx][ny] = new GamePiece(type_switch);
+		}
+	}
+
+	if (rprev->player_off) {
+		player->unpressSwitch();
+		numSwitchesPressed--;
+	}
+	if (rprev->player_on) {
+		delete board[nx][ny];
+		player->pressSwitch();
+		numSwitchesPressed++;
+	}
+	
+	board[nx][ny] = board[playerx][playery];
+	board[playerx][playery] = NULL;
+
+	if (rprev->player_off) {
+		board[playerx][playery] = new GamePiece(type_switch);
+	}
+
+	playerx = nx;
+	playery = ny;
+
+	PrevMove *temp = prev;
+	prev = rprev;
+	rprev = rprev->prev;
+	prev->prev = temp;
+}
+
+void GameBoard::solve()
+{
+	
+}
+
+int GameBoard::getNumSwitches()
+{
+	return numSwitches;
+}
+
+int GameBoard::getNumSwitchesPressed()
+{
+	return numSwitchesPressed;
 }
 
 void GameBoard::reset() {
 	playerx = -1;
 	playery = -1;
+	prev = NULL;
+	rprev = NULL;
+	numSwitches = 0;
+	numSwitchesPressed = 0;
 	for (int j = 0; j < height; j++) {
 		for (int i = 0; i < width; i++) {
 			if (board[i][j] != NULL) {
@@ -152,6 +262,7 @@ void GameBoard::reset() {
 				break;
 			case 'S':
 				board[i][j] = new GamePiece(type_switch);
+				numSwitches++;
 				break;
 			case 'P':
 				board[i][j] = new GamePiece(type_player);
@@ -173,9 +284,13 @@ void GameBoard::reset() {
 				}
 				playerx = i;
 				playery = j;
+				numSwitches++;
+				numSwitchesPressed++;
 				break;
 			case 'c':
 				board[i][j] = new GamePiece(type_crate_switch);
+				numSwitches++;
+				numSwitchesPressed++;
 				break;
 			default:
 				printf("Unknown character! %c\n", resetData[j*width + i]);
@@ -226,6 +341,7 @@ int GameBoard::movePlayer(Dir d) {
 		playery = ny;
 		t->prev = prev;
 		prev = t;
+		rprev = NULL;
 		return 1;
 	}
 	return 0;
@@ -271,6 +387,7 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 	if (op == NULL) {
 		if (ptype == type_crate_switch || ptype == type_player_switch) {
 			p->unpressSwitch();
+			numSwitchesPressed--;
 			board[nx][ny] = p;
 			board[x][y] = new GamePiece(type_switch);
 			prev->player_off = true;
@@ -302,6 +419,7 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 		}
 		else {
 			p->pressSwitch();
+			numSwitchesPressed++;
 			board[nx][ny] = p;
 			board[x][y] = NULL;
 			delete op;
@@ -326,6 +444,7 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 			PrevMove *t = move(d, nx, ny);
 			if (t) {
 				p->unpressSwitch();
+				numSwitchesPressed--;
 				board[nx][ny] = p;
 				board[x][y] = new GamePiece(type_switch);
 				if (t->player_on) {
@@ -343,6 +462,7 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 			PrevMove *t = move(d, nx, ny);
 			if (t) {
 				p->pressSwitch();
+				numSwitchesPressed++;
 				op = board[nx][ny];
 				delete op;
 				board[nx][ny] = p;
@@ -371,6 +491,7 @@ PrevMove *GameBoard::move(Dir d, int x, int y) {
 		}
 		return 0;
 	}
+	return 0;
 }
 
 void GameBoard::draw(SDL_Surface * windowSurface)

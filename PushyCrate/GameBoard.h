@@ -14,11 +14,17 @@ public:
 	PrevMove *move(Dir d, int x, int y);
 	void reset();
 	void undo();
+	void redo();
+	void solve();
+	int getNumSwitches();
+	int getNumSwitchesPressed();
 private:
 	GamePiece ***board;
 	int playerx, playery;
 	int width, height, size;
 	char *resetData;
 	PrevMove *prev;
+	PrevMove *rprev;
+	int numSwitches, numSwitchesPressed;
 };
 

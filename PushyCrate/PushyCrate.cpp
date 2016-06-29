@@ -3,10 +3,8 @@
 #include "GameBoard.h"
 #include "PushyCrate.h"
 
-// Change these if your screen isn't an old flat screen TV hooked up to your computer, with windows 10 sizing everything up by x1.5.
-// I hope that no one else in the world has such a set-up.
-const int maxwidth = 1280;
-const int maxheight = 650;
+const int maxwidth = 1920;
+const int maxheight = 1010;
 
 PushyCrate::PushyCrate(char * filename)
 {
@@ -112,11 +110,19 @@ int PushyCrate::start()
 				case SDL_SCANCODE_U:
 					board->undo();
 					break;
+				case SDL_SCANCODE_Y:
+					board->redo();
+					break;
+				case SDL_SCANCODE_S:
+					board->solve();
+					break;
 				}
 			}
 		}
-		SDL_FillRect(surface, NULL, 0xFFFFFFFF);
+		SDL_FillRect(surface, NULL, 0x00000000);
 		board->draw(surface);
+		sprintf(title, "Pushy Crate! %d/%d", board->getNumSwitchesPressed(), board->getNumSwitches());
+		SDL_SetWindowTitle(window, title);
 		SDL_UpdateWindowSurface(window);
 	}
 	return 0;

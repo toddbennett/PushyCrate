@@ -12,4 +12,5 @@ private:
 	SDL_Window *window;
 	SDL_Surface *surface;
 	GameBoard *board;
+	char title[50];
 };
